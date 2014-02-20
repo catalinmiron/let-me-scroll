@@ -1,0 +1,52 @@
+@import "vendor/normalize";
+@import "vendor/bourbon/bourbon";
+@import "vendor/neat/neat";
+
+@import url("http://fonts.googleapis.com/css?family=Lora:400,700,400italic,700italic|Open+Sans+Condensed:300,700");
+
+$header-font: 'Open Sans Condensed', sans-serif;
+$base-font: 'Lora', serif;
+$base-font-size: 22px;
+$base-line-height: 1.5;
+
+$badass-green: #b4d455;
+
+html,
+body {
+	height: 100%;
+	font: normal #{$base-font-size}/#{$base-line-height} $base-font;
+	text-rendering: optimizeLegibility;
+}
+
+body {
+	@include perspective(800px);
+	background: $badass-green;
+	color: shade($badass-green,60%);
+	padding: 2em;
+	text-align: center;
+}
+
+h1 {
+	@include transform(rotate3d(1,0,0,25deg));
+	@include inline-block;
+	background: tint($badass-green,40%);
+	font-family: $header-font;
+	font-size: 4em;
+	text-transform: uppercase;
+	letter-spacing: 0.05em;
+	color: shade($badass-green,20%);
+	margin-bottom: 0;
+	line-height: 1.1;
+	padding: 0.25em 0.5em;
+}
+
+p {
+	-webkit-hyphens: auto;
+	-moz-hyphens: auto;
+	hyphens: auto;
+	-webkit-font-feature-settings: "kern", "liga", "case";
+	-moz-font-feature-settings: "kern=1", "liga=1", "case=1";
+	-moz-font-feature-settings: "kern", "liga" , "case";
+	-moz-font-feature-settings: "kern" 1, "liga" 1, "case" 1;
+	font-feature-settings: "kern", "liga", "case";
+}
