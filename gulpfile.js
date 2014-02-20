@@ -24,19 +24,13 @@ var target = {
     sass_src : 'scss/**/*.scss',                        // all sass files
     css_dest : 'css',                                   // where to put minified css
     js_lint_src : [                                     // all js that should be linted
-        'js/build/app.js',
-        'js/build/custom/switch.js',
-        'js/build/custom/scheme-loader.js'
-    ],
-    js_uglify_src : [                                   // all js files that should not be concatinated
-        'js/build/custom/scheme-loader.js',
-        'js/build/vendor/modernizr.js'
+        'js/build/custom/scripts.js'
     ],
     js_concat_src : [                                   // all js files that should be concatinated
-        'js/build/custom/switch.js',
-        'js/build/app.js'
+        'js/build/vendor/*',
+        'js/build/custom/scripts.js'
     ],
-    js_dest : 'js'                                      // where to put minified js
+    js_dest : 'js/'                                     // where to put minified js
 };
 
 
@@ -73,23 +67,11 @@ gulp.task('js-lint', function() {
         .pipe(jshint.reporter(stylish))                 // present the results in a beautiful way
 });
 
-// minify all js files that should not be concatinated
-gulp.task('js-uglify', function() {
-    gulp.src(target.js_uglify_src)                      // get the files
-        .pipe(uglify())                                 // uglify the files
-        .pipe(rename(function(dir,base,ext){            // give the files a min suffix
-            var trunc = base.split('.')[0];
-            return trunc + '.min' + ext;
-        }))
-        .pipe(gulp.dest(target.js_dest))                // where to put the files
-        .pipe(notify({ message: 'JS processed!'}));     // notify when done
-});
-
 // minify & concatinate all other js
 gulp.task('js-concat', function() {
     gulp.src(target.js_concat_src)                      // get the files
-        .pipe(uglify())                                 // uglify the files
-        .pipe(concat('scripts.min.js'))                 // concatinate to one file
+        // .pipe(uglify())                              // uglify the files
+        .pipe(concat('app.js'))                        // concatinate to one file
         .pipe(gulp.dest(target.js_dest))                // where to put the files
         .pipe(notify({message: 'JS processed!'}));      // notify when done
 });
@@ -113,7 +95,7 @@ gulp.task('browser-sync', function() {
 *******************************************************************************/
 
 gulp.task('default', function() {
-    gulp.run('sass', 'js-lint', 'js-uglify', 'js-concat', 'browser-sync');
+    gulp.run('sass', 'js-lint', 'js-concat', 'browser-sync');
     gulp.watch('scss/**/*.scss', function() {
         gulp.run('sass');
     });
