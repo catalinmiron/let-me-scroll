@@ -13,7 +13,8 @@ var gulp = require('gulp');                             // gulp core
     stylish = require('jshint-stylish'),                // make errors look good in shell
     minifycss = require('gulp-minify-css'),             // minify the css files
     browserSync = require('browser-sync'),              // inject code to all devices
-    autoprefixer = require('gulp-autoprefixer');        // sets missing browserprefixes
+    autoprefixer = require('gulp-autoprefixer'),        // sets missing browserprefixes
+    runSequence = require('run-sequence');
 
 
 /*******************************************************************************
@@ -22,6 +23,7 @@ var gulp = require('gulp');                             // gulp core
 
 var target = {
     sass_src : 'scss/**/*.scss',                        // all sass files
+    style: 'scss/style.scss',                           // take only style.scss
     css_dest : 'css',                                   // where to put minified css
     js_lint_src : [                                     // all js that should be linted
         'js/build/custom/scripts.js'
@@ -52,7 +54,24 @@ gulp.task('sass', function() {
         ))
         .pipe(minifycss())                              // minify css
         .pipe(gulp.dest(target.css_dest))               // where to put the file
-        .pipe(notify({message: 'SCSS processed!'}));    // notify when done
+        .pipe(notify({message: '<%= file.relative %> processedeeed'}));    // notify when done
+});
+
+gulp.task('style', function() {
+    gulp.src(target.style)                           // get the files
+        .pipe(plumber())                                // make sure gulp keeps running on errors
+        .pipe(sass())                                   // compile all sass
+        .pipe(autoprefixer(                             // complete css with correct vendor prefixes
+            'last 2 version',
+            '> 1%',
+            'ie 8',
+            'ie 9',
+            'ios 6',
+            'android 4'
+        ))
+        // .pipe(minifycss())                              // minify css
+        .pipe(gulp.dest(target.css_dest))               // where to put the file
+        .pipe(notify({message: '<%= file.relative %> processed'}));    // notify when done
 });
 
 
@@ -71,7 +90,7 @@ gulp.task('js-lint', function() {
 gulp.task('js-concat', function() {
     gulp.src(target.js_concat_src)                      // get the files
         // .pipe(uglify())                              // uglify the files
-        .pipe(concat('app.js'))                        // concatinate to one file
+        .pipe(concat('app.js'))                         // concatinate to one file
         .pipe(gulp.dest(target.js_dest))                // where to put the files
         .pipe(notify({message: 'JS processed!'}));      // notify when done
 });
@@ -82,7 +101,7 @@ gulp.task('js-concat', function() {
 *******************************************************************************/
 
 gulp.task('browser-sync', function() {
-    browserSync.init(['css/*.css', 'js/*.js', '*.html'], {        // files to inject
+    browserSync.init(['css/*.*', 'js/*.*', '*.html'], {        // files to inject
         server: {
             baseDir: './'
         }
@@ -94,10 +113,17 @@ gulp.task('browser-sync', function() {
 1. GULP TASKS
 *******************************************************************************/
 
-gulp.task('default', function() {
-    gulp.run('sass', 'js-lint', 'js-concat', 'browser-sync');
-    gulp.watch('scss/**/*.scss', function() {
-        gulp.run('sass');
+gulp.task('default', function(callback) {
+    runSequence(
+        'sass',
+        'style',
+        'js-lint',
+        'js-concat',
+        'browser-sync',
+        callback
+    );
+    gulp.watch(target.style, function() {
+        gulp.run('style');
     });
     gulp.watch(target.js_lint_src, function() {
         gulp.run('js-lint');
